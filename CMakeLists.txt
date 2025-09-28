@@ -9,8 +9,7 @@ set(PROJECT_NAME "IRBuilder")
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        # src/BasicBlock.cpp    
-        src/IRBuilder.cpp
+        src/Graph.cpp
         # .cpp files
 )
 

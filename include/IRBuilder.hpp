@@ -3,6 +3,9 @@
 #include "Graph.hpp"
 
 class IRBuilder {
+private:
+    Graph* graph_;
+    BasicBlock* current_bb_ = nullptr;
 public:
     explicit IRBuilder(Graph* graph) : graph_(graph) {}
 
@@ -69,8 +72,4 @@ public:
         current_bb_->AppendInst(inst);
         return inst;
     }
-
-private:
-    Graph* graph_;
-    BasicBlock* current_bb_ = nullptr;
 };

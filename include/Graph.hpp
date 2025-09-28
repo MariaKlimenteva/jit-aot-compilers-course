@@ -15,6 +15,9 @@ public:
     }
 
     const std::list<std::unique_ptr<BasicBlock>>& GetBlocks() const { return blocks_; }
-
-
+    void Dump() const {
+        for (auto& block : GetBlocks()) {
+            block->Dump();
+        }
+    };
 };

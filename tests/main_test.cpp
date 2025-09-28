@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include "termcolor.hpp"
 
 std::unique_ptr<Graph> BuildFactorialGraph() {
     auto graph = std::make_unique<Graph>();
@@ -14,7 +15,7 @@ std::unique_ptr<Graph> BuildFactorialGraph() {
 
     builder.SetInsertPoint(entry_bb);
     auto* n = builder.CreateParameter(Type::int32);
-    auto* const_1 = builder.CreateConstant(Type::int32, 1);
+    auto* const_1 = builder.CreateConstant(Type::int64, 1);
     // cast uint32 to uint64
     builder.CreateJump(loop_header_bb);
 
@@ -44,6 +45,7 @@ std::unique_ptr<Graph> BuildFactorialGraph() {
 void TestFactorialGraph() {
     auto graph = BuildFactorialGraph();
     assert(graph != nullptr);
+    graph->Dump();
     assert(graph->GetBlocks().size() == 4);
 
     auto& blocks = graph->GetBlocks();
@@ -63,6 +65,7 @@ void TestFactorialGraph() {
     assert(loop_header_bb->GetLastInst()->GetOpcode() == Opcode::If);
     
     auto* first_inst = loop_header_bb->GetFirstInst();
+    first_inst->Dump();
     assert(first_inst->GetOpcode() == Opcode::Phi);
     auto* phi_result = static_cast<PhiInst*>(first_inst);
     assert(phi_result->GetInputs().size() == 2); 

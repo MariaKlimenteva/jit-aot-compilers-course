@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "Instruction.hpp"
+#include "termcolor.hpp"
 
 class Graph;
 
@@ -12,6 +13,7 @@ private:
     std::vector<BasicBlock*> succs_;
 
     Instruction* first_phi_ = nullptr;
+    Instruction* last_phi_ = nullptr;
     Instruction* first_inst_ = nullptr;
     Instruction* last_inst_ = nullptr;
 public:
@@ -24,7 +26,15 @@ public:
             current = next;
         }
     }
-
+    void Dump() const {
+        std::cout << "BB" << std::endl;
+        for (auto* cur_i = first_inst_; cur_i != nullptr; cur_i = cur_i->GetNext()) {
+            cur_i->Dump();
+            if (cur_i == last_inst_) {
+                break;
+            }
+        }
+    }
     void AddPred(BasicBlock* pred) { preds_.push_back(pred); }
     void AddSucc(BasicBlock* succ) { succs_.push_back(succ); }
 
@@ -36,25 +46,31 @@ public:
     Instruction* GetLastInst() const { return last_inst_; }
 
     void AppendInst(Instruction* inst) {
+        inst->SetBasicBlock(this);
+        inst->SetNext(nullptr);
+        inst->SetPrev(nullptr);
         if (inst->GetOpcode() == Opcode::Phi) {
-            if (!first_phi_) {
+            if (first_phi_ == nullptr) {
                 first_phi_ = inst;
+                last_phi_ = inst;
+                if (first_inst_ == nullptr) {
+                    first_inst_ = inst;
+                    last_inst_ = inst;
+                }
+            } else {
+                last_phi_->SetNext(inst);
+                inst->SetPrev(last_phi_);
+                last_phi_ = inst;
             }
-
-            if (first_inst_) {
-                inst->SetNext(first_inst_);
-                first_inst_->SetPrev(inst);
-            }
+        } else {
+            if (first_inst_ == nullptr) {
+                first_inst_ = inst;
+                last_inst_ = inst;
+            } else {
+                last_inst_->SetNext(inst);
+                inst->SetPrev(last_inst_);
+                last_inst_ = inst;
+            }      
         }
-
-        if (!first_inst_) {
-            first_inst_ = inst;
-        }
-
-        if (last_inst_) {
-            last_inst_->SetNext(inst);
-            inst->SetPrev(last_inst_);
-        }
-        last_inst_ = inst;
     }
 };
