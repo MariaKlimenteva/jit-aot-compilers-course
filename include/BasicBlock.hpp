@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <iostream>
 #include "Instruction.hpp"
-#include "termcolor.hpp"
 
 class Graph;
 
@@ -34,6 +34,10 @@ public:
             for (auto* pred : preds_) {
                 std::cout << "BB<" << pred->GetId() << "> ";
             }
+            std::cout << " ; succs: ";
+            for (auto* succs: succs_) { 
+                std::cout << "BB<" << succs->GetId() << "> ";
+            }
         }
         std::cout << std::endl;
         for (auto* cur_i = first_inst_; cur_i != nullptr; cur_i = cur_i->GetNext()) {
@@ -45,7 +49,16 @@ public:
         }
     }
     void AddPred(BasicBlock* pred) { preds_.push_back(pred); }
-    void AddSucc(BasicBlock* succ) { succs_.push_back(succ); }
+    template<typename... Args>
+    void AddSucc(Args*... args) {
+        (succs_.push_back(args), ...);
+    }
+
+    template<typename... Successors>
+    void LinkTo(Successors*... succs) {
+        (succs_.push_back(succs), ...);
+        (succs->AddPred(this), ...);
+    }
 
     const std::vector<BasicBlock*>& GetPreds() const { return preds_; }
     const std::vector<BasicBlock*>& GetSuccs() const { return succs_; }

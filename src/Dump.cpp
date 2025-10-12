@@ -25,7 +25,7 @@ static std::string OpcodeToString(Opcode opcode) {
 }
 
 void BinaryInst::Dump() const {
-    std::cout << "v" << GetId() << TypeToString(GetType()) << " = "
+    std::cout <<  "v" << GetId() << TypeToString(GetType()) << " = "
               << OpcodeToString(GetOpcode()) << " v" << GetInputs()[0]->GetId()
               << ", v" << GetInputs()[1]->GetId() << std::endl;
 }
