@@ -9,6 +9,7 @@ class Graph;
 class BasicBlock {
 private:
     Graph* graph_;
+    int id_;
     std::vector<BasicBlock*> preds_;
     std::vector<BasicBlock*> succs_;
 
@@ -17,7 +18,7 @@ private:
     Instruction* first_inst_ = nullptr;
     Instruction* last_inst_ = nullptr;
 public:
-    explicit BasicBlock(Graph* graph) : graph_(graph) {}
+    explicit BasicBlock(Graph* graph, int id) : graph_(graph), id_(id) {}
     ~BasicBlock() {
         Instruction* current = first_phi_;
         while (current) {
@@ -27,8 +28,16 @@ public:
         }
     }
     void Dump() const {
-        std::cout << "BB" << std::endl;
+        std::cout << "BB<" << GetId() << ">" << std::endl;
+        if (!preds_.empty()) {
+            std::cout << "  ; preds: ";
+            for (auto* pred : preds_) {
+                std::cout << "BB<" << pred->GetId() << "> ";
+            }
+        }
+        std::cout << std::endl;
         for (auto* cur_i = first_inst_; cur_i != nullptr; cur_i = cur_i->GetNext()) {
+            std::cout << "  ";
             cur_i->Dump();
             if (cur_i == last_inst_) {
                 break;
@@ -73,4 +82,5 @@ public:
             }      
         }
     }
+    int GetId() const { return id_; }
 };

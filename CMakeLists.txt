@@ -9,7 +9,7 @@ set(PROJECT_NAME "IRBuilder")
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        src/Graph.cpp
+        src/Dump.cpp
         # .cpp files
 )
 
