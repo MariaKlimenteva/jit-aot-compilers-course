@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <variant>
-#include "termcolor.hpp"
+#include <iostream>
 
 class BasicBlock;
 
@@ -56,28 +56,6 @@ public:
         AddInput(rhs);
     }
     void Dump() const override; 
-        // std::cout << "v" << GetId() << TypeToString(GetType()) << " = "
-        //       << OpcodeToString(GetOpcode()) << " v" << GetInputs()[0]->GetId()
-        //       << ", v" << GetInputs()[1]->GetId() << std::endl;
-        // std::cout << termcolor::blue << "[BINARY INSTR]" << termcolor::reset << std::endl;
-        // switch (opcode_) {
-        //     case Opcode::Add: 
-        //         std::cout << "---ADD---" << std::endl;
-        //         break;
-        //     case Opcode::Mul: 
-        //         std::cout << "---MUL---" << std::endl;
-        //         break;
-        //     case Opcode::Cmp: 
-        //         std::cout << "---CMP---" << std::endl;
-        //         break;
-        //     default: std::cout << "unknown";
-        // }
-        // for (auto _: GetInputs()) {
-        //     std::cout << "\tinputs: " << termcolor::bright_blue; 
-        //     _->Dump();
-        //     std::cout << termcolor::reset;
-        // }
-    // }
 };
 
 class ConstantInst : public Instruction {

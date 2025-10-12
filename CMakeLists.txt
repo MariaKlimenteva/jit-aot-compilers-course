@@ -10,6 +10,7 @@ set(PROJECT_NAME "IRBuilder")
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/Dump.cpp
+        src/DominatorAnalysis.cpp
         # .cpp files
 )
 

@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <iostream>
 #include "Instruction.hpp"
-#include "termcolor.hpp"
 
 class Graph;
 

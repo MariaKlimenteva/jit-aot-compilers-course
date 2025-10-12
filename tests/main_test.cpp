@@ -2,13 +2,13 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
-#include "termcolor.hpp"
 
 std::unique_ptr<Graph> BuildFactorialGraph() {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
 
     auto* entry_bb = graph->CreateNewBasicBlock();
+    graph->SetEntryBlock(entry_bb);
     auto* loop_header_bb = graph->CreateNewBasicBlock();
     auto* loop_body_bb = graph->CreateNewBasicBlock();
     auto* exit_bb = graph->CreateNewBasicBlock();
