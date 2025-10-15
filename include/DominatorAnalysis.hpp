@@ -1,8 +1,18 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include "BasicBlock.hpp"
 #include "Graph.hpp"
 
+struct NodeInfo{
+    BasicBlock* parent{nullptr};
+    size_t dfsnum{0};
+    BasicBlock* idom{nullptr};
+    BasicBlock* semidom{nullptr};
+    BasicBlock* ancestor{nullptr};
+    BasicBlock* label{nullptr};
+    std::vector<BasicBlock*> bucket;
+};
 class DominatorAnalysis {
 public:
     explicit DominatorAnalysis(Graph* graph) : graph_(graph) {}
@@ -11,17 +21,13 @@ public:
     BasicBlock* GetIdom(BasicBlock* bb) const;
 private:
     Graph* graph_;
-    std::vector<BasicBlock*> rpoOrder_;
-    void DFS(BasicBlock* bb);
-    size_t dfsCounter_ = 0;
 
-    std::unordered_map<BasicBlock*, bool> visited_;
-    std::unordered_map<BasicBlock*, BasicBlock*> parent_;
-    std::unordered_map<BasicBlock*, BasicBlock*> idom_;
-    std::unordered_map<BasicBlock*, BasicBlock*> semi_;
-    std::unordered_map<BasicBlock*, BasicBlock*> ancestor_;
-    std::unordered_map<BasicBlock*, BasicBlock*> label_;
-    std::unordered_map<BasicBlock*, size_t> dfnum_;
+    size_t dfsCounter_ = 0;
+    
+    std::unordered_map<BasicBlock*, NodeInfo> info_;
     std::vector<BasicBlock*> vertex_;
-    std::unordered_map<BasicBlock*, std::vector<BasicBlock*>> bucket_;
+    
+    void Dfs(BasicBlock* u, BasicBlock* p);
+    void Link(BasicBlock* v, BasicBlock* w);
+    BasicBlock* Eval(BasicBlock* v);
 };

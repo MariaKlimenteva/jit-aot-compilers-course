@@ -72,4 +72,12 @@ public:
         current_bb_->AppendInst(inst);
         return inst;
     }
+
+    template<typename... Args>
+    void CreateNamedBlocks(std::map<std::string_view, BasicBlock*>& blocks, Args... names) {
+        ( (
+            blocks[names] = graph_->CreateNewBasicBlock(),
+            std::cout << "Created block '" << names << "' with ID: " << blocks[names]->GetId() << std::endl 
+        ), ... );
+    }
 };
