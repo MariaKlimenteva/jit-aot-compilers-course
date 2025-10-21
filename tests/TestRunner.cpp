@@ -116,7 +116,7 @@ void TestExample3(TestRunner& t) {
     ASSERT_EQ(analysis.GetIdom(blocks["E"]), blocks["B"]);
     ASSERT_EQ(analysis.GetIdom(blocks["F"]), blocks["E"]);
     ASSERT_EQ(analysis.GetIdom(blocks["G"]), blocks["B"]);
-    ASSERT_EQ(analysis.GetIdom(blocks["H"]), blocks["B"]);
+    ASSERT_EQ(analysis.GetIdom(blocks["H"]), blocks["F"]);
     ASSERT_EQ(analysis.GetIdom(blocks["I"]), blocks["B"]);
 }
 int main() {
