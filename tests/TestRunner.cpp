@@ -4,6 +4,7 @@
 #include "BuildGraphs.hpp"
 #include "DominatorAnalysis.hpp"
 #include "TestRunner.hpp"
+#include "LoopAnalyzer.hpp"
 
 #define ASSERT_EQ(left, right) \
     t.AssertEqual(left, right, #left " == " #right " at " __FILE__ ":" + std::to_string(__LINE__))
@@ -82,6 +83,10 @@ void TestExample1(TestRunner& t) {
     std::cout << "idom(D) == " << analysis.GetIdom(blocks["D"])->GetId() << std::endl;
     ASSERT_EQ(analysis.GetIdom(blocks["D"]), blocks["B"]);
     ASSERT_EQ(analysis.GetIdom(blocks["C"]), blocks["B"]);
+
+    LoopAnalyzer loop_analyzer(graph.get(), &analysis);
+    loop_analyzer.CollectBackEdges();
+    loop_analyzer.PrintBackEdges();
 }
 
 void TestExample2(TestRunner& t) {
@@ -101,6 +106,9 @@ void TestExample2(TestRunner& t) {
     ASSERT_EQ(analysis.GetIdom(blocks["I"]), blocks["G"]);
     ASSERT_EQ(analysis.GetIdom(blocks["J"]), blocks["B"]);
     ASSERT_EQ(analysis.GetIdom(blocks["K"]), blocks["I"]);
+    LoopAnalyzer loop_analyzer(graph.get(), &analysis);
+    loop_analyzer.CollectBackEdges();
+    loop_analyzer.PrintBackEdges();
 }
 
 void TestExample3(TestRunner& t) {
@@ -118,6 +126,9 @@ void TestExample3(TestRunner& t) {
     ASSERT_EQ(analysis.GetIdom(blocks["G"]), blocks["B"]);
     ASSERT_EQ(analysis.GetIdom(blocks["H"]), blocks["F"]);
     ASSERT_EQ(analysis.GetIdom(blocks["I"]), blocks["B"]);
+    LoopAnalyzer loop_analyzer(graph.get(), &analysis);
+    loop_analyzer.CollectBackEdges();
+    loop_analyzer.PrintBackEdges();
 }
 int main() {
     TestRunner runner;
