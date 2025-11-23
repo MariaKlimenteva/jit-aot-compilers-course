@@ -8,7 +8,8 @@ class BasicBlock;
 // IR set
 enum class Opcode {
     Param, Const, Add, Mul, Cmp, Jump, If, Mov, Phi,
-    BrCond, Br, Ret
+    BrCond, Br, Ret,
+    Or, Shr
 };
 
 enum class Type {

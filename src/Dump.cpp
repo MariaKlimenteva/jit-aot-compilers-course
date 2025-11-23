@@ -20,6 +20,8 @@ static std::string OpcodeToString(Opcode opcode) {
         case Opcode::Ret: return "ret";
         case Opcode::Const: return "const";
         case Opcode::Param: return "param";
+        case Opcode::Or: return "or";
+        case Opcode::Shr: return "ashr";
         default: return "unknown";
     }
 }

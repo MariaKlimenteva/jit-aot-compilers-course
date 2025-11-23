@@ -29,21 +29,24 @@ public:
 
     BinaryInst* CreateAdd(Instruction* lhs, Instruction* rhs) {
         CheckInsertPoint();
-        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Add, lhs->GetType(), current_bb_, lhs, rhs);
+        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Add, lhs->GetType(), 
+            current_bb_, lhs, rhs);
         current_bb_->AppendInst(inst);
         return inst;
     }
 
     BinaryInst* CreateMul(Instruction* lhs, Instruction* rhs) {
         CheckInsertPoint();
-        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Mul, lhs->GetType(), current_bb_, lhs, rhs);
+        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Mul, lhs->GetType(), 
+            current_bb_, lhs, rhs);
         current_bb_->AppendInst(inst);
         return inst;
     }
     
     BinaryInst* CreateCmp(Instruction* lhs, Instruction* rhs) {
         CheckInsertPoint();
-        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Cmp, Type::int32, current_bb_, lhs, rhs);
+        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Cmp, Type::int32, 
+            current_bb_, lhs, rhs);
         current_bb_->AppendInst(inst);
         return inst;
     }
@@ -85,6 +88,22 @@ public:
     ParameterInst* CreateParameter(Type type) {
         CheckInsertPoint();
         auto* inst = new ParameterInst(graph_->getNextInstructionId(), type, current_bb_);
+        current_bb_->AppendInst(inst);
+        return inst;
+    }
+
+    BinaryInst* CreateOr(Instruction* lhs, Instruction* rhs) {
+        CheckInsertPoint();
+        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Or, lhs->GetType(),
+            current_bb_, lhs, rhs);
+        current_bb_->AppendInst(inst);
+        return inst;
+    }
+
+    BinaryInst* CreateShr(Instruction* lhs, Instruction* rhs) {
+        CheckInsertPoint();
+        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Shr, 
+            lhs->GetType(), current_bb_, lhs, rhs);
         current_bb_->AppendInst(inst);
         return inst;
     }

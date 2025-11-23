@@ -15,7 +15,7 @@ void TestFactorialGraph() {
     graph->Dump();
     assert(graph->GetBlocks().size() == 4);
 
-    auto& blocks = graph->GetBlocks();
+    const auto& blocks = graph->GetBlocks();
     auto it = blocks.begin();
     
     BasicBlock* entry_bb = (*it++).get();
@@ -85,8 +85,8 @@ void TestExample1(TestRunner& t) {
     ASSERT_EQ(analysis.GetIdom(blocks["C"]), blocks["B"]);
 
     LoopAnalyzer loop_analyzer(graph.get(), &analysis);
-    loop_analyzer.CollectBackEdges();
-    loop_analyzer.PrintBackEdges();
+    loop_analyzer.Run();
+    loop_analyzer.Dump();
 }
 
 void TestExample2(TestRunner& t) {
@@ -107,8 +107,8 @@ void TestExample2(TestRunner& t) {
     ASSERT_EQ(analysis.GetIdom(blocks["J"]), blocks["B"]);
     ASSERT_EQ(analysis.GetIdom(blocks["K"]), blocks["I"]);
     LoopAnalyzer loop_analyzer(graph.get(), &analysis);
-    loop_analyzer.CollectBackEdges();
-    loop_analyzer.PrintBackEdges();
+    loop_analyzer.Run();
+    loop_analyzer.Dump();
 }
 
 void TestExample3(TestRunner& t) {
@@ -127,15 +127,52 @@ void TestExample3(TestRunner& t) {
     ASSERT_EQ(analysis.GetIdom(blocks["H"]), blocks["F"]);
     ASSERT_EQ(analysis.GetIdom(blocks["I"]), blocks["B"]);
     LoopAnalyzer loop_analyzer(graph.get(), &analysis);
-    loop_analyzer.CollectBackEdges();
-    loop_analyzer.PrintBackEdges();
+    loop_analyzer.Run();
+    loop_analyzer.Dump();
 }
+
+void TestLoops(TestRunner& t) {
+    auto graph = BuildFactorialGraph(); 
+    DominatorAnalysis dom(graph.get());
+    dom.Run();
+
+    LoopAnalyzer loop_analyzer(graph.get(), &dom);
+    loop_analyzer.Run();
+
+    const auto& loops = loop_analyzer.GetLoops();
+    ASSERT_EQ(loops.size(), static_cast<size_t>(1)); 
+
+    Loop* loop = loops[0].get();
+    
+    const auto& blocks = graph->GetBlocks();
+    auto it = blocks.begin();
+    BasicBlock* entry = (*it++).get();
+    BasicBlock* header = (*it++).get();
+    BasicBlock* body = (*it++).get();
+    BasicBlock* exit = (*it).get();
+
+    ASSERT_EQ(loop->header, header);
+    
+    ASSERT_EQ(loop->Contains(header), true);
+    ASSERT_EQ(loop->Contains(body), true);
+    ASSERT_EQ(loop->Contains(entry), false);
+    ASSERT_EQ(loop->Contains(exit), false);
+
+    Loop* root = loop_analyzer.GetRootLoop();
+    ASSERT_EQ(root->sub_loops.size(), static_cast<size_t>(1));
+    ASSERT_EQ(root->sub_loops[0], loop);
+    ASSERT_EQ(loop->parent_loop, root);
+    loop_analyzer.Dump();
+    std::cout << "Loop Analysis test passed!" << std::endl;
+}
+
 int main() {
     TestRunner runner;
     
     runner.AddTest("Example 1 Dominators", TestExample1);
     runner.AddTest("Example 2 Dominators", TestExample2);
     runner.AddTest("Example 3 Dominators", TestExample3);
+    runner.AddTest("Loop Analysis Factorial", TestLoops);
     
     runner.RunAllTests();
     return (runner.GetFailedCount() > 0) ? 1 : 0;
