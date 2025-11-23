@@ -1,211 +1,89 @@
-#include <algorithm>
 #include "DominatorAnalysis.hpp"
-#include "BasicBlock.hpp"
-
-std::string DominatorAnalysis::BBId(BasicBlock* bb) const {
-    if (!bb) return "null";
-    return "BB" + std::to_string(bb->GetId());
-}
-
-void DominatorAnalysis::DumpNodeInfo(BasicBlock* bb) const {
-    if (bb) {
-        std::cout << "NodeInfo for " << BBId(bb) << ": " << info_.at(bb).ToString() << std::endl;
-    } else {
-        std::cout << "=== NodeInfo Dump (DFS order) ===" << std::endl;
-        for (size_t i = 0; i < vertex_.size(); ++i) {
-            BasicBlock* current_bb = vertex_[i];
-            const NodeInfo& ni = info_.at(current_bb);
-            std::cout << "  " << std::setw(3) << i << ": " << BBId(current_bb) 
-                      << " -> " << ni.ToString() << std::endl;
-        }
-        std::cout << "=================================" << std::endl;
-    }
-}
-
-void DominatorAnalysis::DumpNodeInfoDetailed(BasicBlock* bb) const {
-    if (!bb) return;
-    
-    const NodeInfo& ni = info_.at(bb);
-    std::cout << "=== Detailed NodeInfo for " << BBId(bb) << " ===" << std::endl;
-    std::cout << "  DFS number: " << ni.dfsnum << std::endl;
-    std::cout << "  Parent: " << BBId(ni.parent) << std::endl;
-    std::cout << "  Immediate Dominator: " << BBId(ni.idom) << std::endl;
-    std::cout << "  Semidominator: " << BBId(ni.semidom) << std::endl;
-    std::cout << "  Ancestor: " << BBId(ni.ancestor) << std::endl;
-    std::cout << "  Label: " << BBId(ni.label) << std::endl;
-    
-    std::cout << "  Bucket (" << ni.bucket.size() << " items): ";
-    for (BasicBlock* b : ni.bucket) {
-        std::cout << BBId(b) << " ";
-    }
-    std::cout << std::endl;
-    
-    std::cout << "  DFS ancestors: ";
-    BasicBlock* current = bb;
-    while (info_.at(current).parent) {
-        current = info_.at(current).parent;
-        std::cout << BBId(current) << " ";
-    }
-    std::cout << std::endl;
-}
-
-void DominatorAnalysis::DumpDFSOrder() const {
-    std::cout << "=== DFS Order ===" << std::endl;
-    for (size_t i = 0; i < vertex_.size(); ++i) {
-        std::cout << "  " << i << ": " << BBId(vertex_[i]) 
-                  << " (dfsnum=" << info_.at(vertex_[i]).dfsnum << ")" << std::endl;
-    }
-    std::cout << "=================" << std::endl;
-}
-
-void DominatorAnalysis::DumpDominatorTree() const {
-    std::cout << "=== Dominator Tree ===" << std::endl;
-    
-    std::unordered_map<BasicBlock*, std::vector<BasicBlock*>> children;
-    for (const auto& pair : info_) {
-        BasicBlock* bb = pair.first;
-        BasicBlock* idom = pair.second.idom;
-        if (idom) {
-            children[idom].push_back(bb);
-        }
-    }
-    
-    std::function<void(BasicBlock*, size_t)> print_tree = [&](BasicBlock* node, size_t depth) {
-        std::string indent(depth * 2, ' ');
-        std::cout << indent << BBId(node);
-        if (depth == 0) std::cout << " (root)";
-        std::cout << std::endl;
-        
-        for (BasicBlock* child : children[node]) {
-            print_tree(child, depth + 1);
-        }
-    };
-    
-    BasicBlock* root = nullptr;
-    for (const auto& pair : info_) {
-        if (!pair.second.idom) {
-            root = pair.first;
-            break;
-        }
-    }
-    
-    if (root) {
-        print_tree(root, 0);
-    } else {
-        std::cout << "  No root found!" << std::endl;
-    }
-    std::cout << "=====================" << std::endl;
-}
-
-void DominatorAnalysis::Dfs(BasicBlock* u, BasicBlock* p) {
-    info_[u].dfsnum = dfsCounter_;
-    vertex_[dfsCounter_] = u;
-    info_[u].label = u;
-    info_[u].parent = p;
-    info_[u].semidom = u;
-    dfsCounter_++;
-
-    for (auto* v : u->GetSuccs()) {
-        if (info_.find(v) == info_.end()) {
-            Dfs(v, u);
-        }
-    }
-}
-
-void DominatorAnalysis::Link(BasicBlock* v, BasicBlock* w) {
-    info_.at(w).ancestor = v;
-}
-
-BasicBlock* DominatorAnalysis::Eval(BasicBlock* v) {
-    auto& v_info = info_.at(v);
-    if (v_info.ancestor == nullptr) {
-        return v_info.label;
-    }
-    
-    Compress(v);
-    return v_info.label;
-}
-
-void DominatorAnalysis::Compress(BasicBlock* v) {
-    auto& v_info = info_.at(v);
-    if (v_info.ancestor == nullptr) return;
-    
-    Compress(v_info.ancestor);
-    
-    auto& ancestor_info = info_.at(v_info.ancestor);
-    if (info_[ancestor_info.label].semidom->GetId() < info_[v_info.label].semidom->GetId()) {
-        v_info.label = ancestor_info.label;
-    }
-    v_info.ancestor = ancestor_info.ancestor;
-}
+#include <algorithm>
 
 void DominatorAnalysis::Run() {
-    BasicBlock* entryBlock = graph_->GetEntryBlock();
-    if (entryBlock == nullptr) return;
-
-    size_t numBlocks = graph_->GetBlocks().size();
-    vertex_.resize(numBlocks);
+    idoms_.clear();
+    dominators_.clear();
     
-    Dfs(entryBlock, nullptr);
+    const auto& blocks_list = graph_->GetBlocks();
+    std::vector<BasicBlock*> blocks;
+    for(auto& ptr : blocks_list) blocks.push_back(ptr.get());
+    if (blocks.empty()) return;
+    BasicBlock* entry = graph_->GetEntryBlock();
+
+    std::set<BasicBlock*> all_blocks_set(blocks.begin(), blocks.end());
     
-    std::cout << "=== After DFS ===" << std::endl;
-    DumpDFSOrder();
-    DumpNodeInfo();
-
-    for (size_t i = dfsCounter_ - 1; i >= 1; --i) {
-        BasicBlock* w = vertex_[i];
-        if (w == nullptr) continue;
-        auto& w_info = info_.at(w);
-
-        for (BasicBlock* v : w->GetPreds()) {
-            if (info_.find(v) == info_.end()) continue;
-
-            BasicBlock* u = Eval(v);
-            if (info_[info_[u].semidom].dfsnum < info_[w_info.semidom].dfsnum) {
-                w_info.semidom = info_[u].semidom;
-            }
+    for (auto* bb : blocks) {
+        if (bb == entry) {
+            dominators_[bb] = {entry};
+        } else {
+            dominators_[bb] = all_blocks_set;
         }
-        
-        info_[w_info.semidom].bucket.push_back(w);
-        Link(w_info.parent, w);
+    }
 
-        if (w_info.parent) {
-            for (BasicBlock* v : info_[w_info.parent].bucket) {
-                BasicBlock* u = Eval(v);
-                if (info_[u].semidom == info_[v].semidom) {
-                    info_[v].idom = info_[v].semidom;
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        for (auto* bb : blocks) {
+            if (bb == entry) continue;
+
+            std::set<BasicBlock*> new_doms;
+            bool first = true;
+
+            if (bb->GetPreds().empty()) continue; 
+
+            for (auto* pred : bb->GetPreds()) {
+                if (dominators_.find(pred) == dominators_.end()) continue;
+
+                if (first) {
+                    new_doms = dominators_[pred];
+                    first = false;
                 } else {
-                    info_[v].idom = u;
+                    std::set<BasicBlock*> intersection;
+                    std::set_intersection(new_doms.begin(), new_doms.end(),
+                                          dominators_[pred].begin(), dominators_[pred].end(),
+                                          std::inserter(intersection, intersection.begin()));
+                    new_doms = intersection;
                 }
             }
-            info_[w_info.parent].bucket.clear();
+
+            new_doms.insert(bb);
+
+            if (new_doms != dominators_[bb]) {
+                dominators_[bb] = new_doms;
+                changed = true;
+            }
         }
     }
-
-    std::cout << "=== After Steps 2-3 ===" << std::endl;
-    DumpNodeInfo();
-
-    for (size_t i = 1; i < dfsCounter_; ++i) {
-        BasicBlock* w = vertex_[i];
-        if (!w) continue;
-        
-        auto& w_info = info_.at(w);
-        if (w_info.idom != w_info.semidom) {
-            w_info.idom = info_[w_info.idom].idom;
-        }
-    }
-
-    info_[entryBlock].idom = nullptr;
     
-    std::cout << "=== Final Result ===" << std::endl;
-    DumpNodeInfo();
-    DumpDominatorTree();
+    for (auto* bb : blocks) {
+        if (bb == entry) {
+            idoms_[bb] = nullptr;
+            continue;
+        }
+        
+        size_t target_size = dominators_[bb].size() - 1;
+        BasicBlock* idom = nullptr;
+        
+        for (auto* dom : dominators_[bb]) {
+            if (dom != bb && dominators_[dom].size() == target_size) {
+                idom = dom;
+                break;
+            }
+        }
+        idoms_[bb] = idom;
+    }
 }
 
 BasicBlock* DominatorAnalysis::GetIdom(BasicBlock* bb) const {
-    auto it = info_.find(bb);
-    if (it != info_.end()) {
-        return it->second.idom;
-    }
-    return nullptr;
+    auto it = idoms_.find(bb);
+    return (it != idoms_.end()) ? it->second : nullptr;
+}
+
+bool DominatorAnalysis::Dominates(BasicBlock* dom, BasicBlock* node) const {
+    if (!node || !dom) return false;
+
+    auto it = dominators_.find(node);
+    if (it == dominators_.end()) return false;
+    return it->second.count(dom);
 }

@@ -22,8 +22,8 @@ target_include_directories(${PROJECT_NAME}
 
 file(GLOB APP_SOURCES "tests/*.cpp")
 
-add_executable(factorial_builder ${APP_SOURCES})
-target_link_libraries(factorial_builder PRIVATE ${PROJECT_NAME})
+add_executable(tests ${APP_SOURCES})
+target_link_libraries(tests PRIVATE ${PROJECT_NAME})
 
 set(COMMON_WARNINGS
     -Wall
@@ -43,11 +43,11 @@ set(COMMON_WARNINGS
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_WARNINGS})
-target_compile_options(factorial_builder PRIVATE ${COMMON_WARNINGS})
+target_compile_options(tests PRIVATE ${COMMON_WARNINGS})
 
 if(NOT MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE -Werror)
-    target_compile_options(factorial_builder PRIVATE -Werror)
+    target_compile_options(tests PRIVATE -Werror)
 endif()
 
 option(BUILD_TESTS "turn on unit tests option" OFF)

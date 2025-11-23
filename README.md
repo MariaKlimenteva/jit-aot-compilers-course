@@ -20,5 +20,5 @@ Ret val
 ```
 cmake -S . -B build -G "Ninja" -DBUILD_TESTS=ON 
 cmake --build build
-./build/factorial_builder
+./build/tests
 ```
