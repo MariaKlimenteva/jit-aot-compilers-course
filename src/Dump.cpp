@@ -21,7 +21,7 @@ static std::string OpcodeToString(Opcode opcode) {
         case Opcode::Const: return "const";
         case Opcode::Param: return "param";
         case Opcode::Or: return "or";
-        case Opcode::Shr: return "ashr";
+        case Opcode::AShr: return "ashr";
         default: return "unknown";
     }
 }

@@ -95,5 +95,33 @@ public:
             }      
         }
     }
+
+        void RemoveInst(Instruction* inst) {
+        if (!inst) return;
+
+        if (inst == first_inst_) {
+            first_inst_ = inst->GetNext();
+        }
+        if (inst == last_inst_) {
+            last_inst_ = inst->GetPrev();
+        }
+        if (inst == first_phi_) {
+            first_phi_ = inst->GetNext();
+        }
+        if (inst == last_phi_) {
+            last_phi_ = inst->GetPrev();
+        }
+
+        if (inst->GetPrev()) {
+            inst->GetPrev()->SetNext(inst->GetNext());
+        }
+        if (inst->GetNext()) {
+            inst->GetNext()->SetPrev(inst->GetPrev());
+        }
+
+        inst->SetPrev(nullptr);
+        inst->SetNext(nullptr);
+    }
+    
     int GetId() const { return id_; }
 };

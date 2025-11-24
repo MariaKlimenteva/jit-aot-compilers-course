@@ -9,7 +9,7 @@ class BasicBlock;
 enum class Opcode {
     Param, Const, Add, Mul, Cmp, Jump, If, Mov, Phi,
     BrCond, Br, Ret,
-    Or, Shr
+    Or, AShr
 };
 
 enum class Type {
@@ -46,6 +46,12 @@ public:
     virtual ~Instruction() = default;
 
     virtual void Dump() const = 0;
+
+    virtual void ReplaceInput(Instruction* oldInst, Instruction* newInst) {
+        for (auto& input : inputs_) {
+            if (input == oldInst) input = newInst;
+        }
+    }
 };
 
 // ADD, MUL, CMP
@@ -134,6 +140,13 @@ public:
     }
 
     void Dump() const override; 
+
+    void ReplaceInput(Instruction* oldInst, Instruction* newInst) override {
+        Instruction::ReplaceInput(oldInst, newInst);
+        for (auto& pair : phi_inputs_) {
+            if (pair.second == oldInst) pair.second = newInst;
+        }
+    }
 
 private:
     std::vector<std::pair<BasicBlock*, Instruction*>> phi_inputs_;

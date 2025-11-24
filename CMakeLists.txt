@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME}
         src/Dump.cpp
         src/DominatorAnalysis.cpp
         src/LoopAnalysis.cpp
+        src/Optimizer.cpp
         # .cpp files
 )
 

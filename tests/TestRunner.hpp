@@ -20,6 +20,17 @@ class TestRunner {
         }
     }
 
+    template<typename T, typename U>
+    void AssertNotEqual(const T& t, const U& u, const std::string& hint) {
+        if (t != u) {
+            tests_passed_++;
+        } else {
+            tests_failed_++;
+            std::cerr << "[ FAIL ] " << hint << "\n"
+                      << "         Values are equal: " << t << std::endl;
+        }
+    }
+
     using TestFunc = std::function<void(TestRunner&)>;
 
     void AddTest(const std::string& name, TestFunc func) {
