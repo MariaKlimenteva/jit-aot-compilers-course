@@ -102,7 +102,7 @@ public:
 
     BinaryInst* CreateShr(Instruction* lhs, Instruction* rhs) {
         CheckInsertPoint();
-        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::Shr, 
+        auto* inst = new BinaryInst(graph_->getNextInstructionId(), Opcode::AShr, 
             lhs->GetType(), current_bb_, lhs, rhs);
         current_bb_->AppendInst(inst);
         return inst;

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Graph.hpp"
 #include <algorithm>
 #include <map>
+#include <memory>
   
 std::unique_ptr<Graph> BuildFactorialGraph() {
     auto graph = std::make_unique<Graph>();
@@ -96,5 +98,55 @@ std::unique_ptr<Graph> BuildExample3Graph(std::map<std::string_view, BasicBlock*
     blocks["F"]->LinkTo(blocks["H"], blocks["B"]);
     blocks["G"]->LinkTo(blocks["C"], blocks["I"]);
     blocks["H"]->LinkTo(blocks["I"], blocks["G"]);
+    return graph;
+}
+
+std::unique_ptr<Graph> BuildExample4Graph(std::map<std::string_view, BasicBlock*>& blocks) {
+    auto graph = std::make_unique<Graph>();
+    IRBuilder builder(graph.get());
+    builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E");
+
+    graph->SetEntryBlock(blocks["A"]);
+    builder.SetInsertPoint(blocks["A"]);
+
+    blocks["A"]->LinkTo(blocks["B"]);
+    blocks["B"]->LinkTo(blocks["C"], blocks["D"]);
+    blocks["D"]->LinkTo(blocks["E"]);
+    blocks["E"]->LinkTo(blocks["B"]);
+    return graph;
+}
+
+std::unique_ptr<Graph> BuildExample5Graph(std::map<std::string_view, BasicBlock*>& blocks) {
+    auto graph = std::make_unique<Graph>();
+    IRBuilder builder(graph.get());
+    builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E", "F");
+
+    graph->SetEntryBlock(blocks["A"]);
+    builder.SetInsertPoint(blocks["A"]);
+
+    blocks["A"]->LinkTo(blocks["B"]);
+    blocks["B"]->LinkTo(blocks["C"]);
+    blocks["C"]->LinkTo(blocks["D"]);
+    blocks["D"]->LinkTo(blocks["E"]);
+    blocks["E"]->LinkTo(blocks["B"]);
+    blocks["C"]->LinkTo(blocks["F"]);
+    blocks["D"]->LinkTo(blocks["F"]);
+    return graph;
+}
+
+std::unique_ptr<Graph> BuildExample6Graph(std::map<std::string_view, BasicBlock *> &blocks) {
+    auto graph = std::make_unique<Graph>();
+    IRBuilder builder(graph.get());
+    builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E", "F", "G", "H");
+
+    graph->SetEntryBlock(blocks["A"]);
+    builder.SetInsertPoint(blocks["A"]);
+
+    blocks["A"]->LinkTo(blocks["B"]);
+    blocks["B"]->LinkTo(blocks["C"], blocks["D"]);
+    blocks["C"]->LinkTo(blocks["E"], blocks["F"]);
+    blocks["F"]->LinkTo(blocks["G"]);
+    blocks["G"]->LinkTo(blocks["H"], blocks["B"]);
+    blocks["H"]->LinkTo(blocks["A"]);
     return graph;
 }
