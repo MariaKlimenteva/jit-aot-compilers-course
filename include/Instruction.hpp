@@ -21,6 +21,7 @@ protected:
     int id_;
     Opcode opcode_;
     Type type_;
+    int life_position_ = -1;
     BasicBlock* basic_block_ = nullptr;
     Instruction* prev_ = nullptr;
     Instruction* next_ = nullptr;
@@ -30,6 +31,8 @@ public:
     Opcode GetOpcode() const { return opcode_; }
     Type GetType() const { return type_; }
     int GetId() const { return id_; }
+    void SetLifePosition(int pos) { life_position_ = pos; }
+    int GetLifePosition() const { return life_position_; }
     BasicBlock* GetBasicBlock() const { return basic_block_; }
     const std::vector<Instruction*>& GetInputs() const { return inputs_; }
 

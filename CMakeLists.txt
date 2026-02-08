@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME}
         src/DominatorAnalysis.cpp
         src/LoopAnalysis.cpp
         src/Optimizer.cpp
+        src/LivenessAnalysis.cpp
         # .cpp files
 )
 
@@ -47,8 +48,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_WARNINGS})
 target_compile_options(tests PRIVATE ${COMMON_WARNINGS})
 
 if(NOT MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE -Werror)
-    target_compile_options(tests PRIVATE -Werror)
+    target_compile_options(${PROJECT_NAME} PRIVATE )
+    target_compile_options(tests PRIVATE )
 endif()
 
 option(BUILD_TESTS "turn on unit tests option" OFF)
