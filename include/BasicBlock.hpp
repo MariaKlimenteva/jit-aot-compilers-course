@@ -64,6 +64,7 @@ public:
     const std::vector<BasicBlock*>& GetSuccs() const { return succs_; }
     Graph* GetGraph() const { return graph_; }
     Instruction* GetFirstPhi() const { return first_phi_; }
+    Instruction* GetLastPhi() const { return last_phi_; }
     Instruction* GetFirstInst() const { return first_inst_; }
     Instruction* GetLastInst() const { return last_inst_; }
 
@@ -75,10 +76,6 @@ public:
             if (first_phi_ == nullptr) {
                 first_phi_ = inst;
                 last_phi_ = inst;
-                if (first_inst_ == nullptr) {
-                    first_inst_ = inst;
-                    last_inst_ = inst;
-                }
             } else {
                 last_phi_->SetNext(inst);
                 inst->SetPrev(last_phi_);
