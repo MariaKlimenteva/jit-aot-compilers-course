@@ -5,14 +5,7 @@ static bool IsTrackable(Instruction* inst) {
     return inst && inst->GetOpcode() != Opcode::Const && inst->GetType() != Type::Unknown;
 }
 
-void LivenessAnalysis::ComputeRPO(BasicBlock* bb, std::set<BasicBlock*>& visited) {
-    if (visited.count(bb)) return;
-    visited.insert(bb);
-    for (auto& successor : bb->GetSuccs()) {
-        ComputeRPO(successor, visited);
-    }
-    linear_blocks_.push_back(bb);
-}
+
 
 void LivenessAnalysis::NumberInstructions() {
     int current_pos = 0;
@@ -22,68 +15,6 @@ void LivenessAnalysis::NumberInstructions() {
         };
         for (auto *i = bb->GetFirstPhi(); i; i = i->GetNext()) number(i);
         for (auto *i = bb->GetFirstInst(); i; i = i->GetNext()) number(i);
-    }
-}
-
-void LivenessAnalysis::ComputeLinearOrder() {
-    std::set<BasicBlock*> visited;
-    linear_blocks_.clear();
-    if (graph_->GetEntryBlock() == nullptr) return;
-    ComputeRPO(graph_->GetEntryBlock(), visited);
-    std::reverse(linear_blocks_.begin(), linear_blocks_.end());
-    
-    std::map<BasicBlock*, int> bb_index;
-    for(size_t i = 0; i < linear_blocks_.size(); ++i) bb_index[linear_blocks_[i]] = i;
-
-    for (auto* bb : linear_blocks_) {
-        for (auto* succ : bb->GetSuccs()) {
-            if (bb_index.count(succ) && bb_index[succ] <= bb_index[bb]) {
-                BasicBlock* header = succ;
-                BasicBlock* latch = bb;
-
-                std::set<BasicBlock*> loop_blocks;
-                std::vector<BasicBlock*> worklist;
-                
-                loop_blocks.insert(header);
-                if (latch != header) {
-                    loop_blocks.insert(latch);
-                    worklist.push_back(latch);
-                }
-                
-                size_t head = 0;
-                while(head < worklist.size()) {
-                    BasicBlock* curr = worklist[head++];
-                    for (auto* pred : curr->GetPreds()) {
-                         if (bb_index[pred] >= bb_index[header] && loop_blocks.find(pred) == loop_blocks.end()) {
-                             loop_blocks.insert(pred);
-                             worklist.push_back(pred);
-                         }
-                    }
-                }
-
-                std::vector<BasicBlock*> new_order;
-                
-                for (auto* b : linear_blocks_) {
-                    if (b == header) {
-                        new_order.push_back(b);
-                        for (auto* lb : linear_blocks_) {
-                            if (lb != header && loop_blocks.count(lb)) {
-                                new_order.push_back(lb);
-                            }
-                        }
-                    } else if (loop_blocks.count(b)) {
-                        continue;
-                    } else {
-                        new_order.push_back(b);
-                    }
-                }
-                
-                linear_blocks_ = new_order;
-
-                bb_index.clear();
-                for(size_t i = 0; i < linear_blocks_.size(); ++i) bb_index[linear_blocks_[i]] = i;
-            }
-        }
     }
 }
 
@@ -183,7 +114,10 @@ void LivenessAnalysis::BuildIntervals() {
 }
 
 void LivenessAnalysis::Run() {
-    ComputeLinearOrder();
+    if (linear_blocks_.empty() && graph_->GetEntryBlock() != nullptr) {
+        std::cerr << "Warning: Linear order is empty!" << std::endl;
+    }
+    
     NumberInstructions();
     BuildIntervals();
     Dump();

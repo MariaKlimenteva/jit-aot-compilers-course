@@ -62,6 +62,11 @@ public:
             std::cout << "\n";
         }
     }
+
+    void SetLinearOrder(const std::vector<BasicBlock*>& order) {
+        linear_blocks_ = order;
+    }
+
 private:
     Graph* graph_;
     std::vector<BasicBlock*> linear_blocks_;
@@ -69,9 +74,6 @@ private:
     std::map<BasicBlock*, std::set<int>> live_in_;
     std::map<BasicBlock*, std::set<int>> live_out_;
     
-    void ComputeLinearOrder();
-    void ComputeRPO(BasicBlock* bb, std::set<BasicBlock*>& visited);
     void NumberInstructions();
-    void ComputeGlobalLiveness();
     void BuildIntervals();
 };
