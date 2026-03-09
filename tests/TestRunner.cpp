@@ -1,11 +1,23 @@
-#include "IRBuilder.hpp"
-#include "TestsUtils.hpp"
-#include "BuildGraphs.hpp"
 #include "TestRunner.hpp"
-#include "BasicBlock.hpp"
-#include "LivenessAnalysis_tests.cpp"
-#include "Loops_tests.cpp"
-#include "Opt_tests.cpp"
+#include "TestsUtils.hpp"
+#include "LoopAnalyzer.hpp"
+#include "BuildGraphs.hpp"
+
+void TestRegAllocGraph1(TestRunner& t);
+void TestRegAllocGraph2(TestRunner& t);
+void TestRegAllocGraph3(TestRunner& t);
+
+void TestLivenessLinear(TestRunner& t);
+void TestLivenessIf(TestRunner& t);
+void TestLivenessLoop(TestRunner& t);
+
+void TestConstantFolding(TestRunner& t);
+void TestPeepholeMul(TestRunner& t);
+void TestPeepholeOr(TestRunner& t);
+void TestPeepholeAshr(TestRunner& t);
+
+void TestLoops(TestRunner& t);
+
 void TestFactorialGraph(TestRunner& t) {
     auto graph = BuildFactorialGraph();
     assert(graph != nullptr);
@@ -66,8 +78,6 @@ void TestFactorialGraph(TestRunner& t) {
     assert(exit_bb->GetLastInst()->GetOpcode() == Opcode::Ret);
 
     ASSERT_EQ(exit_bb->GetLastInst()->GetInputs()[0], phi_result);
-    
-    std::cout << "Factorial graph test passed successfully!" << std::endl;
 }
 
 void TestExample1(TestRunner& t) {
@@ -81,7 +91,6 @@ void TestExample1(TestRunner& t) {
     ASSERT_EQ(analysis.GetIdom(blocks["F"]), blocks["B"]);
     ASSERT_EQ(analysis.GetIdom(blocks["E"]), blocks["F"]);
     ASSERT_EQ(analysis.GetIdom(blocks["G"]), blocks["F"]);
-    std::cout << "idom(D) == " << analysis.GetIdom(blocks["D"])->GetId() << std::endl;
     ASSERT_EQ(analysis.GetIdom(blocks["D"]), blocks["B"]);
     ASSERT_EQ(analysis.GetIdom(blocks["C"]), blocks["B"]);
 
@@ -257,6 +266,7 @@ int main() {
     runner.AddTest("Example 2 Dominators & Loops", TestExample2);
     runner.AddTest("Example 3 Dominators & Loops", TestExample3);
     runner.AddTest("Loop Analysis Factorial", TestLoops);
+    // optimizations tests
     runner.AddTest("Opt: Constant Folding", TestConstantFolding);
     runner.AddTest("Opt: Peephole MUL", TestPeepholeMul);
     runner.AddTest("Opt: Peephole OR", TestPeepholeOr);
@@ -264,9 +274,16 @@ int main() {
     runner.AddTest("Loop: Example 4 (Basic Loop)", TestExample4);
     runner.AddTest("Loop: Example 5 (Shared Exit)", TestExample5);
     runner.AddTest("Loop: Example 6 (Nested Loops)", TestExample6);
+
+    // linear order + liveness analyser tests
     runner.AddTest("Liveness: Linear Graph", TestLivenessLinear);
     runner.AddTest("Liveness: If Branch", TestLivenessIf);
     runner.AddTest("Liveness: Loop Graph", TestLivenessLoop);
+
+    // reg alloc tests
+    runner.AddTest("RegAlloc: Graph 1 (Loop + Branch)", TestRegAllocGraph1);
+    runner.AddTest("RegAlloc: Graph 2 (Nested Loops)", TestRegAllocGraph2);
+    runner.AddTest("RegAlloc: Graph 3 (Sequential + Branch)", TestRegAllocGraph3);
     runner.RunAllTests();
     return (runner.GetFailedCount() > 0) ? 1 : 0;
 }

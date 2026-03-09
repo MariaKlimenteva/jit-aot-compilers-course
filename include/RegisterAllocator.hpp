@@ -26,7 +26,8 @@ public:
         InitializeFreeRegisters();
         
         std::vector<const LiveInterval*> sorted_intervals;
-        for (auto* bb : graph_->GetBlocks()) {
+        for (const auto& bb_ptr : graph_->GetBlocks()) {
+            auto* bb = bb_ptr.get();
             for (auto* inst = bb->GetFirstPhi(); inst; inst = inst->GetNext()) {
                 if (auto* iv = liveness_->GetInterval(inst->GetId())) sorted_intervals.push_back(iv);
             }
@@ -42,7 +43,7 @@ public:
         for (const auto* i : sorted_intervals) {
             ExpireOldIntervals(i);
             
-            if (active_.size() == R_int) {
+            if (active_.size() == static_cast<size_t>(R_int)) {
                 SpillAtInterval(i);
             } else {
                 int reg = free_registers_.front();

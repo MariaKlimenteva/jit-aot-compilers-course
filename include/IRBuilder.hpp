@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Graph.hpp"
+#include <iostream>
 
 class IRBuilder {
 private:
@@ -112,7 +113,7 @@ public:
     void CreateNamedBlocks(std::map<std::string_view, BasicBlock*>& blocks, Args... names) {
         ( (
             blocks[names] = graph_->CreateNewBasicBlock(),
-            std::cout << "Created block '" << names << "' with ID: " << blocks[names]->GetId() << std::endl 
+            std::cout << "Created block '" << names << "' with ID: " << std::to_string(blocks[names]->GetId()) << std::endl 
         ), ... );
     }
 };

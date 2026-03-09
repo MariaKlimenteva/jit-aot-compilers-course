@@ -61,7 +61,7 @@ if(BUILD_TESTS)
         URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
     )
     FetchContent_MakeAvailable(googletest)
-    add_executable(run_tests tests/TestRunner.cpp)
+    add_executable(run_tests ${APP_SOURCES})
     target_link_libraries(run_tests PRIVATE ${PROJECT_NAME} GTest::gtest_main)
     add_test(NAME unit_tests COMMAND run_tests)
 endif()

@@ -4,8 +4,9 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include "IRBuilder.hpp"
   
-std::unique_ptr<Graph> BuildFactorialGraph() {
+inline std::unique_ptr<Graph> BuildFactorialGraph() {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
 
@@ -44,7 +45,7 @@ std::unique_ptr<Graph> BuildFactorialGraph() {
     return graph;
 }
 
-std::unique_ptr<Graph> BuildExample1Graph(std::map<std::string_view, BasicBlock*>& blocks) {
+inline std::unique_ptr<Graph> BuildExample1Graph(std::map<std::string_view, BasicBlock*>& blocks) {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
     builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E", "F", "G");
@@ -61,7 +62,7 @@ std::unique_ptr<Graph> BuildExample1Graph(std::map<std::string_view, BasicBlock*
     return graph;
 }
 
-std::unique_ptr<Graph> BuildExample2Graph(std::map<std::string_view, BasicBlock*>& blocks) {
+inline std::unique_ptr<Graph> BuildExample2Graph(std::map<std::string_view, BasicBlock*>& blocks) {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
     builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E", "F", "G", "I", "H", "J", "K");
@@ -82,7 +83,7 @@ std::unique_ptr<Graph> BuildExample2Graph(std::map<std::string_view, BasicBlock*
     return graph;
 }
 
-std::unique_ptr<Graph> BuildExample3Graph(std::map<std::string_view, BasicBlock*>& blocks) {
+inline std::unique_ptr<Graph> BuildExample3Graph(std::map<std::string_view, BasicBlock*>& blocks) {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
     builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E", "F", "G", "H", "I");
@@ -101,7 +102,7 @@ std::unique_ptr<Graph> BuildExample3Graph(std::map<std::string_view, BasicBlock*
     return graph;
 }
 
-std::unique_ptr<Graph> BuildExample4Graph(std::map<std::string_view, BasicBlock*>& blocks) {
+inline std::unique_ptr<Graph> BuildExample4Graph(std::map<std::string_view, BasicBlock*>& blocks) {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
     builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E");
@@ -116,7 +117,7 @@ std::unique_ptr<Graph> BuildExample4Graph(std::map<std::string_view, BasicBlock*
     return graph;
 }
 
-std::unique_ptr<Graph> BuildExample5Graph(std::map<std::string_view, BasicBlock*>& blocks) {
+inline std::unique_ptr<Graph> BuildExample5Graph(std::map<std::string_view, BasicBlock*>& blocks) {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
     builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E", "F");
@@ -134,7 +135,7 @@ std::unique_ptr<Graph> BuildExample5Graph(std::map<std::string_view, BasicBlock*
     return graph;
 }
 
-std::unique_ptr<Graph> BuildExample6Graph(std::map<std::string_view, BasicBlock *> &blocks) {
+inline std::unique_ptr<Graph> BuildExample6Graph(std::map<std::string_view, BasicBlock *> &blocks) {
     auto graph = std::make_unique<Graph>();
     IRBuilder builder(graph.get());
     builder.CreateNamedBlocks(blocks, "A", "B", "C", "D", "E", "F", "G", "H");

@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <iostream>
 #include <cassert>
+#include "Instruction.hpp"
 
-std::ostream& operator<<(std::ostream& os, const Opcode& op) {
+inline std::ostream& operator<<(std::ostream& os, const Opcode& op) {
     return os << static_cast<int>(op);
 }
 

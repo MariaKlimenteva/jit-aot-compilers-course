@@ -1,4 +1,8 @@
 #include "LoopAnalyzer.hpp"
+#include "TestRunner.hpp"
+#include "IRBuilder.hpp"
+#include "BuildGraphs.hpp"
+#include "TestsUtils.hpp"
 
 void TestLoops(TestRunner& t) {
     auto graph = BuildFactorialGraph(); 

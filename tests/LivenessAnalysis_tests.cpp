@@ -1,5 +1,10 @@
 #include "LivenessAnalysis.hpp"
 #include "LinearOrderBuilder.hpp"
+#include "IRBuilder.hpp"
+#include "TestRunner.hpp"
+#include "TestRunner.hpp"
+#include "TestsUtils.hpp"
+#include "BuildGraphs.hpp"
 
 void TestLivenessLinear(TestRunner& t) {
     auto graph = std::make_unique<Graph>();
@@ -121,7 +126,8 @@ void TestLivenessLoop(TestRunner& t) {
 
     ASSERT_NOT_EQ(result_phi, nullptr);
     ASSERT_NOT_EQ(new_result_mul, nullptr);
-    
+    (void)i_phi;      
+    (void)new_i_add;  
     auto* interval_res = liveness.GetInterval(result_phi->GetId());
     ASSERT_NOT_EQ(interval_res, nullptr);
     

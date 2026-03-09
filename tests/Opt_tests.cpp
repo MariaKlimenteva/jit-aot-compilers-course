@@ -1,5 +1,7 @@
 #include "DominatorAnalysis.hpp"
 #include "Optimizer.hpp"
+#include "TestRunner.hpp"
+#include "TestsUtils.hpp"
 
 int64_t GetConstVal(Instruction* inst) {
     if (!inst) {
