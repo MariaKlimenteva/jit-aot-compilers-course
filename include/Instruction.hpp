@@ -4,12 +4,13 @@
 #include <iostream>
 
 class BasicBlock;
+class Graph;
 
 // IR set
 enum class Opcode {
     Param, Const, Add, Mul, Cmp, Jump, If, Mov, Phi,
     BrCond, Br, Ret,
-    Or, AShr
+    Or, AShr, Call
 };
 
 enum class Type {
@@ -108,6 +109,7 @@ public:
     BasicBlock* GetTarget() const { return target_; }
 
     void Dump() const override; 
+    void ReplaceTarget(BasicBlock* t) { target_ = t; }
 private:
     BasicBlock* target_;
 };
@@ -122,7 +124,8 @@ public:
     BasicBlock* GetTrueTarget() const { return true_target_; }
     BasicBlock* GetFalseTarget() const { return false_target_; }
 
-    void Dump() const override; 
+    void Dump() const override;
+    void ReplaceTargets(BasicBlock* t, BasicBlock* f) { true_target_ = t; false_target_ = f; }
 private:
     BasicBlock* true_target_;
     BasicBlock* false_target_;
@@ -150,7 +153,34 @@ public:
             if (pair.second == oldInst) pair.second = newInst;
         }
     }
+    void ReplaceBlock(BasicBlock* old_bb, BasicBlock* new_bb) {
+        for (auto& pair : phi_inputs_) {
+            if (pair.first == old_bb) pair.first = new_bb;
+        }
+    }
 
 private:
     std::vector<std::pair<BasicBlock*, Instruction*>> phi_inputs_;
+};
+
+class CallInst : public Instruction {
+public:
+    CallInst(int id, Type type, BasicBlock* bb, Graph* callee, const std::vector<Instruction*>& args)
+        : Instruction(id, Opcode::Call, type, bb), callee_(callee) {
+        for (auto* arg : args) {
+            AddInput(arg);
+        }
+    }
+    
+    Graph* GetCallee() const { return callee_; }
+    
+    void Dump() const override {
+        std::cout << "v" << GetId() << " = call Graph_" << callee_ << "(";
+        for (size_t i = 0; i < GetInputs().size(); ++i) {
+            std::cout << "v" << GetInputs()[i]->GetId() << (i < GetInputs().size() - 1 ? ", " : "");
+        }
+        std::cout << ")" << std::endl;
+    }
+private:
+    Graph* callee_;
 };

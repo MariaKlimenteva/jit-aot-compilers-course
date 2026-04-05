@@ -109,6 +109,13 @@ public:
         return inst;
     }
 
+    CallInst* CreateCall(Type ret_type, Graph* callee, const std::vector<Instruction*>& args) {
+        CheckInsertPoint();
+        auto* inst = new CallInst(graph_->getNextInstructionId(), ret_type, current_bb_, callee, args);
+        current_bb_->AppendInst(inst);
+        return inst;
+    }
+    
     template<typename... Args>
     void CreateNamedBlocks(std::map<std::string_view, BasicBlock*>& blocks, Args... names) {
         ( (

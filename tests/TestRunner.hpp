@@ -39,7 +39,7 @@ class TestRunner {
 
     void RunAllTests() {
         for (const auto& test : tests_) {
-            std::cout << "--- Running test: " << test.name << " ---" << std::endl;
+            std::cout << "=== Running test: " << test.name << " ===" << std::endl;
             try {
                 test.function(*this);
             } catch (const std::exception& e) {

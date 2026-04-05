@@ -31,3 +31,29 @@ public:
         }
     };
 };
+
+
+inline BasicBlock* BasicBlock::SplitAfter(Instruction* split_point) {   
+    BasicBlock* cont_bb = graph_->CreateNewBasicBlock();
+    cont_bb->succs_ = this->succs_;
+    this->succs_.clear();
+
+    for (auto* succ : cont_bb->succs_) {
+        for (auto& p : succ->preds_) {
+            if (p == this) p = cont_bb;
+        }
+        for (auto* inst = succ->GetFirstPhi(); inst; inst = inst->GetNext()) {
+            auto* phi = static_cast<PhiInst*>(inst);
+            phi->ReplaceBlock(this, cont_bb); 
+        }
+    }
+    Instruction* curr = split_point->GetNext();
+    while (curr) {
+        Instruction* next = curr->GetNext();
+        this->RemoveInst(curr);
+        cont_bb->AppendInst(curr);
+        curr = next;
+    }
+
+    return cont_bb;
+}

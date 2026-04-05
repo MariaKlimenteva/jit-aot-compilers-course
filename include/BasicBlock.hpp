@@ -93,7 +93,7 @@ public:
         }
     }
 
-        void RemoveInst(Instruction* inst) {
+    void RemoveInst(Instruction* inst) {
         if (!inst) return;
 
         if (inst == first_inst_) {
@@ -121,4 +121,5 @@ public:
     }
     
     int GetId() const { return id_; }
+    BasicBlock* SplitAfter(Instruction* split_point); 
 };

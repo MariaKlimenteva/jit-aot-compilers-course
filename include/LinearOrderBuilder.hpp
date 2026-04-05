@@ -2,6 +2,7 @@
 #include "Graph.hpp"
 #include "LoopAnalyzer.hpp"
 #include <vector>
+#include <algorithm>
 #include <set>
 
 class LinearOrderBuilder {
