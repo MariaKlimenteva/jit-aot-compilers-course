@@ -14,6 +14,7 @@ target_sources(${PROJECT_NAME}
         src/LoopAnalysis.cpp
         src/Optimizer.cpp
         src/LivenessAnalysis.cpp
+        src/CheckElimination.cpp
         # .cpp files
 )
 

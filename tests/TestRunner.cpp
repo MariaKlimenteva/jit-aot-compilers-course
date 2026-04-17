@@ -19,6 +19,10 @@ void TestPeepholeAshr(TestRunner& t);
 void TestLoops(TestRunner& t);
 void TestInliningSlideExample(TestRunner& t);
 
+void TestNullCheckRedundant(TestRunner& t);
+void TestNullCheckNoRemoveDifferentValues(TestRunner& t);
+void TestCheckHoistFromLoop(TestRunner& t);
+
 void TestFactorialGraph(TestRunner& t) {
     auto graph = BuildFactorialGraph();
     assert(graph != nullptr);
@@ -287,6 +291,11 @@ int main() {
     runner.AddTest("RegAlloc: Graph 3 (Sequential + Branch)", TestRegAllocGraph3);
 
     runner.AddTest("Static Inlining (Slide Example)", TestInliningSlideExample);
+
+    runner.AddTest("CheckElim: Redundant NullCheck+BoundsCheck", TestNullCheckRedundant);
+    runner.AddTest("CheckElim: No Remove Different Values", TestNullCheckNoRemoveDifferentValues);
+    runner.AddTest("CheckElim: Hoist Checks From Loop", TestCheckHoistFromLoop);
+
     runner.RunAllTests();
     return (runner.GetFailedCount() > 0) ? 1 : 0;
 }

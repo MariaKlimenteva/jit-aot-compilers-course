@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "Instruction.hpp"
 
 class Graph;
@@ -62,6 +63,12 @@ public:
 
     const std::vector<BasicBlock*>& GetPreds() const { return preds_; }
     const std::vector<BasicBlock*>& GetSuccs() const { return succs_; }
+    void RemovePred(BasicBlock* pred) {
+        preds_.erase(std::remove(preds_.begin(), preds_.end(), pred), preds_.end());
+    }
+    void RemoveSucc(BasicBlock* succ) {
+        succs_.erase(std::remove(succs_.begin(), succs_.end(), succ), succs_.end());
+    }
     Graph* GetGraph() const { return graph_; }
     Instruction* GetFirstPhi() const { return first_phi_; }
     Instruction* GetLastPhi() const { return last_phi_; }
@@ -120,6 +127,20 @@ public:
         inst->SetNext(nullptr);
     }
     
+    void InsertInstBefore(Instruction* inst, Instruction* before) {
+        if (!inst || !before) return;
+        inst->SetBasicBlock(this);
+        inst->SetNext(before);
+        inst->SetPrev(before->GetPrev());
+        if (before->GetPrev()) {
+            before->GetPrev()->SetNext(inst);
+        } else {
+            if (before == first_phi_) first_phi_ = inst;
+            else first_inst_ = inst;
+        }
+        before->SetPrev(inst);
+    }
+
     int GetId() const { return id_; }
     BasicBlock* SplitAfter(Instruction* split_point); 
 };

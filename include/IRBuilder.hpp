@@ -115,6 +115,34 @@ public:
         current_bb_->AppendInst(inst);
         return inst;
     }
+
+    NullCheckInst* CreateNullCheck(Instruction* obj) {
+        CheckInsertPoint();
+        auto* inst = new NullCheckInst(graph_->getNextInstructionId(), obj->GetType(), current_bb_, obj);
+        current_bb_->AppendInst(inst);
+        return inst;
+    }
+
+    BoundsCheckInst* CreateBoundsCheck(Instruction* index, Instruction* length) {
+        CheckInsertPoint();
+        auto* inst = new BoundsCheckInst(graph_->getNextInstructionId(), index->GetType(), current_bb_, index, length);
+        current_bb_->AppendInst(inst);
+        return inst;
+    }
+
+    LoadArrayInst* CreateLoadArray(Type elem_type, Instruction* arr, Instruction* index) {
+        CheckInsertPoint();
+        auto* inst = new LoadArrayInst(graph_->getNextInstructionId(), elem_type, current_bb_, arr, index);
+        current_bb_->AppendInst(inst);
+        return inst;
+    }
+
+    StoreArrayInst* CreateStoreArray(Type elem_type, Instruction* arr, Instruction* index, Instruction* value) {
+        CheckInsertPoint();
+        auto* inst = new StoreArrayInst(graph_->getNextInstructionId(), elem_type, current_bb_, arr, index, value);
+        current_bb_->AppendInst(inst);
+        return inst;
+    }
     
     template<typename... Args>
     void CreateNamedBlocks(std::map<std::string_view, BasicBlock*>& blocks, Args... names) {

@@ -22,6 +22,11 @@ static std::string OpcodeToString(Opcode opcode) {
         case Opcode::Param: return "param";
         case Opcode::Or: return "or";
         case Opcode::AShr: return "ashr";
+        case Opcode::Call: return "call";
+        case Opcode::NullCheck: return "null_check";
+        case Opcode::BoundsCheck: return "bounds_check";
+        case Opcode::LoadArray: return "load_array";
+        case Opcode::StoreArray: return "store_array";
         default: return "unknown";
     }
 }
@@ -75,4 +80,28 @@ void PhiInst::Dump() const {
         }
     }
     std::cout << std::endl;
+}
+
+void NullCheckInst::Dump() const {
+    std::cout << "v" << GetId() << TypeToString(GetType()) << " = "
+              << OpcodeToString(GetOpcode()) << " v" << GetInputs()[0]->GetId() << std::endl;
+}
+
+void BoundsCheckInst::Dump() const {
+    std::cout << "v" << GetId() << TypeToString(GetType()) << " = "
+              << OpcodeToString(GetOpcode()) << " v" << GetInputs()[0]->GetId()
+              << ", v" << GetInputs()[1]->GetId() << std::endl;
+}
+
+void LoadArrayInst::Dump() const {
+    std::cout << "v" << GetId() << TypeToString(GetType()) << " = "
+              << OpcodeToString(GetOpcode()) << " v" << GetInputs()[0]->GetId()
+              << ", v" << GetInputs()[1]->GetId() << std::endl;
+}
+
+void StoreArrayInst::Dump() const {
+    std::cout << OpcodeToString(GetOpcode()) << TypeToString(GetType())
+              << " v" << GetInputs()[0]->GetId()
+              << ", v" << GetInputs()[1]->GetId()
+              << ", v" << GetInputs()[2]->GetId() << std::endl;
 }

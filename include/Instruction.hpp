@@ -10,7 +10,8 @@ class Graph;
 enum class Opcode {
     Param, Const, Add, Mul, Cmp, Jump, If, Mov, Phi,
     BrCond, Br, Ret,
-    Or, AShr, Call
+    Or, AShr, Call,
+    NullCheck, BoundsCheck, LoadArray, StoreArray
 };
 
 enum class Type {
@@ -161,6 +162,57 @@ public:
 
 private:
     std::vector<std::pair<BasicBlock*, Instruction*>> phi_inputs_;
+};
+
+class NullCheckInst : public Instruction {
+public:
+    NullCheckInst(int id, Type type, BasicBlock* bb, Instruction* obj)
+        : Instruction(id, Opcode::NullCheck, type, bb) {
+        AddInput(obj);
+    }
+    Instruction* GetCheckedObject() const { return GetInputs()[0]; }
+    void Dump() const override;
+};
+
+class BoundsCheckInst : public Instruction {
+public:
+    BoundsCheckInst(int id, Type type, BasicBlock* bb,
+                    Instruction* index, Instruction* length)
+        : Instruction(id, Opcode::BoundsCheck, type, bb) {
+        AddInput(index);
+        AddInput(length);
+    }
+    Instruction* GetIndex() const { return GetInputs()[0]; }
+    Instruction* GetLength() const { return GetInputs()[1]; }
+    void Dump() const override;
+};
+
+class LoadArrayInst : public Instruction {
+public:
+    LoadArrayInst(int id, Type type, BasicBlock* bb,
+                  Instruction* arr, Instruction* index)
+        : Instruction(id, Opcode::LoadArray, type, bb) {
+        AddInput(arr);
+        AddInput(index);
+    }
+    Instruction* GetArray() const { return GetInputs()[0]; }
+    Instruction* GetIndex() const { return GetInputs()[1]; }
+    void Dump() const override;
+};
+
+class StoreArrayInst : public Instruction {
+public:
+    StoreArrayInst(int id, Type type, BasicBlock* bb,
+                   Instruction* arr, Instruction* index, Instruction* value)
+        : Instruction(id, Opcode::StoreArray, type, bb) {
+        AddInput(arr);
+        AddInput(index);
+        AddInput(value);
+    }
+    Instruction* GetArray() const { return GetInputs()[0]; }
+    Instruction* GetIndex() const { return GetInputs()[1]; }
+    Instruction* GetValue() const { return GetInputs()[2]; }
+    void Dump() const override;
 };
 
 class CallInst : public Instruction {
