@@ -3,6 +3,9 @@
 #include <memory>
 #include <map>
 #include <list>
+#include <vector>
+#include <algorithm>
+#include <set>
 #include "BasicBlock.hpp"
 
 class Graph {
@@ -25,6 +28,25 @@ public:
     }
     BasicBlock* GetEntryBlock() const { return entry_block_; }
     const std::list<std::unique_ptr<BasicBlock>>& GetBlocks() const { return blocks_; }
+
+    std::vector<BasicBlock*> GetRPO() {
+        std::vector<BasicBlock*> rpo;
+        std::set<BasicBlock*> visited;
+        
+        DFS(entry_block_, visited, rpo);
+        std::reverse(rpo.begin(), rpo.end());
+        return rpo;
+    }
+
+    void DFS(BasicBlock* bb, std::set<BasicBlock*>& visited, std::vector<BasicBlock*>& rpo) {
+        if (!bb || visited.count(bb)) return;
+        visited.insert(bb);
+        for (auto* succ : bb->GetSuccs()) {
+            DFS(succ, visited, rpo);
+        }
+        rpo.push_back(bb);
+    }
+
     void Dump() const {
         for (auto& block : GetBlocks()) {
             block->Dump();

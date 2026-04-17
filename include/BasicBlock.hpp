@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "Instruction.hpp"
 
 class Graph;
@@ -119,7 +120,7 @@ public:
         inst->SetPrev(nullptr);
         inst->SetNext(nullptr);
     }
-    
+
     int GetId() const { return id_; }
     BasicBlock* SplitAfter(Instruction* split_point); 
 };

@@ -19,6 +19,12 @@ void TestPeepholeAshr(TestRunner& t);
 void TestLoops(TestRunner& t);
 void TestInliningSlideExample(TestRunner& t);
 
+void TestNullCheckRedundant(TestRunner& t);
+void TestNullCheckNoRemoveDifferentValues(TestRunner& t);
+void TestChecksInSameBlock(TestRunner& t);
+void TestChecksDiamondNoElimination(TestRunner& t);
+void TestBoundsCheckDifferentLength(TestRunner& t);
+
 void TestFactorialGraph(TestRunner& t) {
     auto graph = BuildFactorialGraph();
     assert(graph != nullptr);
@@ -34,49 +40,48 @@ void TestFactorialGraph(TestRunner& t) {
     BasicBlock* exit_bb = (*it).get();
 
     ASSERT_EQ(entry_bb->GetPreds().empty(), true);
-    assert(entry_bb->GetSuccs().size() != 1);
+    ASSERT_EQ(entry_bb->GetSuccs().size(), 1);
     ASSERT_EQ(entry_bb->GetSuccs()[0],loop_header_bb);
-    assert(entry_bb->GetLastInst()->GetOpcode() == Opcode::Jump);
+    ASSERT_EQ(entry_bb->GetLastInst()->GetOpcode(), Opcode::Jump);
 
-    assert(loop_header_bb->GetPreds().size() != 2); 
-    assert(loop_header_bb->GetSuccs().size() != 2);
-    assert(loop_header_bb->GetLastInst()->GetOpcode() == Opcode::If);
+    ASSERT_EQ(loop_header_bb->GetPreds().size(), 2); 
+    ASSERT_EQ(loop_header_bb->GetSuccs().size(), 2);
+    ASSERT_EQ(loop_header_bb->GetLastInst()->GetOpcode(), Opcode::If);
     
     auto* first_inst = loop_header_bb->GetFirstInst();
-    first_inst->Dump();
-    assert(first_inst->GetOpcode() == Opcode::Phi);
+    ASSERT_EQ(first_inst->GetOpcode(), Opcode::Phi);
     auto* phi_result = static_cast<PhiInst*>(first_inst);
-    assert(phi_result->GetInputs().size() != 2); 
+    ASSERT_EQ(phi_result->GetInputs().size(), 2); 
     
     auto phi_inputs = phi_result->GetPhiInputs();
     bool from_entry_found = false;
     bool from_loop_body_found = false;
     for (const auto& pair : phi_inputs) {
         if (pair.first == entry_bb) {
-            assert(pair.second->GetOpcode() == Opcode::Const);
+            ASSERT_EQ(pair.second->GetOpcode(), Opcode::Const);
             from_entry_found = true;
         } else if (pair.first == loop_body_bb) {
-            assert(pair.second->GetOpcode() == Opcode::Mul);
+            ASSERT_EQ(pair.second->GetOpcode(), Opcode::Mul);
             from_loop_body_found = true;
         }
     }
     ASSERT_EQ(from_entry_found && from_loop_body_found, true);
 
-    assert(loop_body_bb->GetPreds().size() != 1); 
+    ASSERT_EQ(loop_body_bb->GetPreds().size(), 1); 
     ASSERT_EQ(loop_body_bb->GetPreds()[0], loop_header_bb);
-    assert(loop_body_bb->GetSuccs().size() != 1); 
+    ASSERT_EQ(loop_body_bb->GetSuccs().size(), 1); 
     ASSERT_EQ(loop_body_bb->GetSuccs()[0], loop_header_bb);
     Instruction* current = loop_body_bb->GetFirstInst();
-    assert(current->GetOpcode() == Opcode::Mul);
+    ASSERT_EQ(current->GetOpcode(), Opcode::Mul);
     current = current->GetNext();
-    assert(current->GetOpcode() == Opcode::Add);
+    ASSERT_EQ(current->GetOpcode(), Opcode::Add);
     current = current->GetNext();
-    assert(current->GetOpcode() == Opcode::Jump);
+    ASSERT_EQ(current->GetOpcode(), Opcode::Jump);
 
-    assert(exit_bb->GetPreds().size() != 1);
+    ASSERT_EQ(exit_bb->GetPreds().size(), 1);
     ASSERT_EQ(exit_bb->GetPreds()[0], loop_header_bb);
     ASSERT_EQ(exit_bb->GetSuccs().empty(), true);
-    assert(exit_bb->GetLastInst()->GetOpcode() == Opcode::Ret);
+    ASSERT_EQ(exit_bb->GetLastInst()->GetOpcode(), Opcode::Ret);
 
     ASSERT_EQ(exit_bb->GetLastInst()->GetInputs()[0], phi_result);
 }
@@ -287,6 +292,13 @@ int main() {
     runner.AddTest("RegAlloc: Graph 3 (Sequential + Branch)", TestRegAllocGraph3);
 
     runner.AddTest("Static Inlining (Slide Example)", TestInliningSlideExample);
+
+    runner.AddTest("CheckElim: Redundant NullCheck+BoundsCheck", TestNullCheckRedundant);
+    runner.AddTest("CheckElim: No Remove Different Values", TestNullCheckNoRemoveDifferentValues);
+    runner.AddTest("CheckElim: Checks In Same Block", TestChecksInSameBlock);
+    runner.AddTest("CheckElim: Diamond No Elimination", TestChecksDiamondNoElimination);
+    runner.AddTest("CheckElim: BoundsCheck Different Length", TestBoundsCheckDifferentLength);
+
     runner.RunAllTests();
     return (runner.GetFailedCount() > 0) ? 1 : 0;
 }
